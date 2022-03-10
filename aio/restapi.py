@@ -11,6 +11,20 @@ import aiohttp
 logger = logging.getLogger("webclient")
 
 
+async def get_with_err(url, **kwargs):
+    logger.debug("GET send request to: %s", url)
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, **kwargs) as response:
+            logger.debug("GET %s - %s", url, response.status)
+            # declare an error value
+            err = None
+            if response.status != 200:
+                err = ValueError(f"{response.status} {response.reason}")
+
+            return await response.json(), err
+
+
 async def get(url, **kwargs):
     logger.debug("GET send request to: %s", url)
 
@@ -19,7 +33,18 @@ async def get(url, **kwargs):
             logger.debug("GET %s - %s", url, response.status)
             return await response.json()
 
+async def get_text_with_err(url, **kwargs):
+    logger.debug("GET send request to: %s", url)
 
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, **kwargs) as response:
+            logger.debug("GET %s - %s", url, response.status)
+            err = None
+            if response.status != 200:
+                err = ValueError(f"{response.status} {response.reason}")
+            return await response.json(), err
+
+        
 async def get_text(url, **kwargs):
     logger.debug("GET send request to: %s", url)
 
