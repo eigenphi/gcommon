@@ -6,6 +6,7 @@ import logging
 from functools import partial
 
 import aiohttp
+import aiohttp.client_exceptions as ce
 
 
 logger = logging.getLogger("webclient")
@@ -22,7 +23,12 @@ async def get_with_err(url, **kwargs):
             if response.status != 200:
                 err = ValueError(f"{response.status} {response.reason}")
 
-            return await response.json(), err
+            try:
+                resp = await response.json(), err
+            except ce.ClientConnectorError as e:
+                logger.error("Connection Error: %s", e.strerror)
+                err = ValueError(f"Connection Error: {e.strerror}")
+                return None, err
 
 
 async def get(url, **kwargs):
@@ -31,7 +37,13 @@ async def get(url, **kwargs):
     async with aiohttp.ClientSession() as session:
         async with session.get(url, **kwargs) as response:
             logger.debug("GET %s - %s", url, response.status)
-            return await response.json()
+            try:
+                return await response.json()
+            except ce.ClientConnectorError as e:
+                logger.error("Connection Error: %s", e.strerror)
+                err = ValueError(f"Connection Error: {e.strerror}")
+                return None, err
+
 
 async def get_text_with_err(url, **kwargs):
     logger.debug("GET send request to: %s", url)
@@ -42,7 +54,13 @@ async def get_text_with_err(url, **kwargs):
             err = None
             if response.status != 200:
                 err = ValueError(f"{response.status} {response.reason}")
-            return await response.text(), err
+                
+            try:
+                return await response.text(), err
+            except ce.ClientConnectorError as e:
+                logger.error("Connection Error: %s", e.strerror)
+                err = ValueError(f"Connection Error: {e.strerror}")
+                return None, err
 
         
 async def get_text(url, **kwargs):
@@ -51,7 +69,13 @@ async def get_text(url, **kwargs):
     async with aiohttp.ClientSession() as session:
         async with session.get(url, **kwargs) as response:
             logger.debug("GET %s - %s", url, response.status)
-            return await response.text()
+
+            try:
+                return await response.text()
+            except ce.ClientConnectorError as e:
+                logger.error("Connection Error: %s", e.strerror)
+                err = ValueError(f"Connection Error: {e.strerror}")
+                return None, err
 
 
 async def post(url, data, **kwargs):
@@ -60,7 +84,13 @@ async def post(url, data, **kwargs):
     async with aiohttp.ClientSession() as session:
         async with session.post(url, data=data, **kwargs) as response:
             logger.debug("POST %s - %s", url, response.status)
-            return await response.json()
+
+            try:
+                return await response.json()
+            except ce.ClientConnectorError as e:
+                logger.error("Connection Error: %s", e.strerror)
+                err = ValueError(f"Connection Error: {e.strerror}")
+                return None, err
 
 
 async def post_text(url, data, **kwargs):
@@ -69,7 +99,13 @@ async def post_text(url, data, **kwargs):
     async with aiohttp.ClientSession() as session:
         async with session.post(url, data=data, **kwargs) as response:
             logger.debug("POST %s - %s", url, response.status)
-            return await response.text()
+            
+            try:
+                return await response.text()
+            except ce.ClientConnectorError as e:
+                logger.error("Connection Error: %s", e.strerror)
+                err = ValueError(f"Connection Error: {e.strerror}")
+                return None, err
 
 
 async def post_json(url, data, **kwargs):
@@ -82,7 +118,13 @@ async def post_json(url, data, **kwargs):
             result = await response.json()
             logger.debug("POST %s - %s", url, result)
             # result = await response.text()
-            return result
+            
+            try:
+                return result
+            except ce.ClientConnectorError as e:
+                logger.error("Connection Error: %s", e.strerror)
+                err = ValueError(f"Connection Error: {e.strerror}")
+                return None, err
 
 
 async def put(url, data, **kwargs):
@@ -91,7 +133,13 @@ async def put(url, data, **kwargs):
     async with aiohttp.ClientSession() as session:
         async with session.put(url, data=data, **kwargs) as response:
             logger.debug("PUT %s - %s", url, response.status)
-            return await response.json()
+            
+            try:
+                return await response.json()
+            except ce.ClientConnectorError as e:
+                logger.error("Connection Error: %s", e.strerror)
+                err = ValueError(f"Connection Error: {e.strerror}")
+                return None, err
 
 
 async def delete(url, **kwargs):
@@ -100,5 +148,9 @@ async def delete(url, **kwargs):
     async with aiohttp.ClientSession() as session:
         async with session.delete(url, **kwargs) as response:
             logger.debug("DELETE %s - %s", url, response.status)
-            return await response.json()
-
+            try:
+                return await response.json()
+            except ce.ClientConnectorError as e:
+                logger.error("Connection Error: %s", e.strerror)
+                err = ValueError(f"Connection Error: {e.strerror}")
+                return None, err
