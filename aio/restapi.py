@@ -42,7 +42,7 @@ async def get_text_with_err(url, **kwargs):
             err = None
             if response.status != 200:
                 err = ValueError(f"{response.status} {response.reason}")
-            return await response.json(), err
+            return await response.text(), err
 
         
 async def get_text(url, **kwargs):
